@@ -59,13 +59,5 @@ def handle_move_in(conn: sqlite3.Connection, event: MoveInEvent) -> WelcomeResul
     message = build_message(event.full_name, address, services, event.has_children)
     welcome_id = str(uuid.uuid4())
 
-    try:
-        repository.save_welcome(conn, welcome_id, event, address["id"], message)
-    except sqlite3.IntegrityError:
-        # En annen forespørsel med samme event_id rakk å lagre først
-        existing = repository.find_welcome_by_event_id(conn, event.event_id)
-        if existing is None:
-            raise
-        return WelcomeResult(existing["id"], existing["message"], created=False)
-
+    repository.save_welcome(conn, welcome_id, event, address["id"], message)
     return WelcomeResult(welcome_id, message, created=True)
