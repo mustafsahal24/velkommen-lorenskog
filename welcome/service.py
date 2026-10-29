@@ -1,6 +1,5 @@
 """Forretningslogikk: lager og lagrer velkomstmeldinger for nye innbyggere."""
 
-import sqlite3
 import uuid
 from dataclasses import dataclass
 
@@ -23,8 +22,8 @@ class WelcomeResult:
 
 def build_message(
     full_name: str,
-    address: sqlite3.Row,
-    services: list[sqlite3.Row],
+    address: dict,
+    services: list[dict],
     has_children: bool,
 ) -> str:
     """Lager teksten i velkomstmeldingen. Rører ikke databasen, så den er lett å teste."""
@@ -45,7 +44,7 @@ def build_message(
     return "\n".join(lines)
 
 
-def handle_move_in(conn: sqlite3.Connection, event: MoveInEvent) -> WelcomeResult:
+def handle_move_in(conn, event: MoveInEvent) -> WelcomeResult:
     """Behandler en flyttehendelse. Samme hendelse to ganger gir samme velkomst."""
     existing = repository.find_welcome_by_event_id(conn, event.event_id)
     if existing is not None:

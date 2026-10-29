@@ -1,75 +1,86 @@
 """All databasetilgang for velkomsttjenesten.
 
-Resten av koden kaller funksjonene her og trenger ikke kjenne til SQL.
-Alle spørringer bruker parametere (?) for å hindre SQL-injeksjon.
+Virker mot både SQLite og Azure SQL. Alle spørringer bruker parametere (?)
+for å hindre SQL-injeksjon.
 """
-
-import sqlite3
 
 from welcome.models import MoveInEvent
 
 
-def find_address(
-    conn: sqlite3.Connection, street: str, postal_code: str
-) -> sqlite3.Row | None:
-    """Finner en adresse og skolen den hører til. Returnerer None hvis den ikke finnes."""
-    return conn.execute(
+def _fetch_one(conn, sql: str, params: tuple = ()) -> dict | None:
+    """Kjører en spørring og returnerer første rad som dictionary, eller None."""
+    cursor = conn.cursor()
+    cursor.execute(sql, params)
+    row = cursor.fetchone()
+    if row is None:
+        return None
+    columns = [column[0] for column in cursor.description]
+    return dict(zip(columns, row))
+
+
+def _fetch_all(conn, sql: str, params: tuple = ()) -> list[dict]:
+    """Kjører en spørring og returnerer alle rader som dictionaries."""
+    cursor = conn.cursor()
+    cursor.execute(sql, params)
+    columns = [column[0] for column in cursor.description]
+    return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+
+def find_address(conn, street: str, postal_code: str) -> dict | None:
+    """Finner en adresse og skolen den hører til."""
+    return _fetch_one(
+        conn,
         """
         SELECT a.id, a.street, a.postal_code,
                s.school_name, s.url AS school_url
         FROM addresses a
         JOIN school_districts s ON s.id = a.school_district_id
-        WHERE a.street = ? COLLATE NOCASE
+        WHERE LOWER(a.street) = LOWER(?)
           AND a.postal_code = ?
         """,
         (street, postal_code),
-    ).fetchone()
+    )
 
 
-def list_services(conn: sqlite3.Connection, has_children: bool) -> list[sqlite3.Row]:
-    """Henter tjenestene som skal med i velkomsten, i riktig rekkefølge.
-
-    Tjenester for familier tas bare med når innbyggeren har barn.
-    """
-    return conn.execute(
+def list_services(conn, has_children: bool) -> list[dict]:
+    """Henter tjenestene som skal med. Familietjenester bare når man har barn."""
+    return _fetch_all(
+        conn,
         """
         SELECT category, title, description, url
         FROM services
         WHERE audience = 'all'
-           OR (audience = 'families' AND ?)
+           OR (audience = 'families' AND ? = 1)
         ORDER BY sort_order
         """,
         (int(has_children),),
-    ).fetchall()
+    )
 
 
-def find_welcome_by_event_id(
-    conn: sqlite3.Connection, event_id: str
-) -> sqlite3.Row | None:
+def find_welcome_by_event_id(conn, event_id: str) -> dict | None:
     """Finner en velkomst som allerede er laget for denne hendelsen."""
-    return conn.execute(
+    return _fetch_one(
+        conn,
         "SELECT id, message, created_at FROM welcome_messages WHERE event_id = ?",
         (event_id,),
-    ).fetchone()
+    )
 
 
-def get_welcome(conn: sqlite3.Connection, welcome_id: str) -> sqlite3.Row | None:
-    """Henter en velkomst med sin tilfeldige id."""
-    return conn.execute(
+def get_welcome(conn, welcome_id: str) -> dict | None:
+    """Henter en velkomst med sin id."""
+    return _fetch_one(
+        conn,
         "SELECT id, full_name, message, created_at FROM welcome_messages WHERE id = ?",
         (welcome_id,),
-    ).fetchone()
+    )
 
 
 def save_welcome(
-    conn: sqlite3.Connection,
-    welcome_id: str,
-    event: MoveInEvent,
-    address_id: int,
-    message: str,
+    conn, welcome_id: str, event: MoveInEvent, address_id: int, message: str
 ) -> None:
     """Lagrer en ny velkomst. Databasen stopper duplikater via UNIQUE på event_id."""
-    conn.execute(
+    cursor = conn.cursor()
+    cursor.execute(
         """
         INSERT INTO welcome_messages
             (id, event_id, full_name, email, address_id, has_children, message)

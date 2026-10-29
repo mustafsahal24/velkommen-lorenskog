@@ -93,6 +93,6 @@ def get_welcome(req: func.HttpRequest) -> func.HttpResponse:
         return _json_response({"error": "Fant ikke velkomsten."}, 404)
 
     return _json_response(
-        {"id": row["id"], "message": row["message"], "created_at": row["created_at"]},
+        {"id": row["id"], "message": row["message"], "created_at": str(row["created_at"])},
         200,
     )
