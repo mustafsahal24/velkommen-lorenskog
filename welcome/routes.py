@@ -1,8 +1,4 @@
-"""HTTP-endepunktene for velkomsttjenesten.
-
-Her oversettes HTTP til kall mot service-laget, og resultater og feil
-oversettes tilbake til riktige statuskoder.
-"""
+"""HTTP-endepunktene for velkomsttjenesten."""
 
 import hmac
 import json
@@ -84,7 +80,7 @@ def move_in(req: func.HttpRequest) -> func.HttpResponse:
 
 @bp.route(route="welcome/{welcome_id}", methods=["GET"], auth_level=func.AuthLevel.ANONYMOUS)
 def get_welcome(req: func.HttpRequest) -> func.HttpResponse:
-    """Henter en velkomst med sin tilfeldige id."""
+    """Henter en velkomst med sin id."""
     welcome_id = req.route_params.get("welcome_id", "")
 
     conn = get_connection()

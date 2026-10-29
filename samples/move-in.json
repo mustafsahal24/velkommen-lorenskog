@@ -1,0 +1,8 @@
+{
+  "event_id": "evt-demo-001",
+  "full_name": "Kari Nordmann",
+  "email": "kari@example.no",
+  "street": "Testgata 10",
+  "postal_code": "1472",
+  "has_children": true
+}
