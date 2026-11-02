@@ -82,7 +82,7 @@ def move_in(req: func.HttpRequest) -> func.HttpResponse:
 def get_welcome(req: func.HttpRequest) -> func.HttpResponse:
     """Henter en velkomst med sin id."""
     welcome_id = req.route_params.get("welcome_id", "")
-
+    
     conn = get_connection()
     try:
         row = repository.get_welcome(conn, welcome_id)
@@ -91,6 +91,12 @@ def get_welcome(req: func.HttpRequest) -> func.HttpResponse:
 
     if row is None:
         return _json_response({"error": "Fant ikke velkomsten."}, 404)
+
+    # ?format=text viser meldingen slik innbyggeren ser den
+    if req.params.get("format") == "text":
+        return func.HttpResponse(
+            row["message"], status_code=200, mimetype="text/plain", charset="utf-8"
+        )
 
     return _json_response(
         {"id": row["id"], "message": row["message"], "created_at": str(row["created_at"])},

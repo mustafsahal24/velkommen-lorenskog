@@ -30,14 +30,20 @@ def build_message(
     first_name = full_name.split()[0]
     lines = [f"Hei {first_name}, og velkommen til Lørenskog!", ""]
 
+    school_services = [s for s in services if s["audience"] == "families"]
+    practical_services = [s for s in services if s["audience"] == "all"]
+
     if has_children:
+        lines.append("Skole og barnehage:")
         lines.append(
-            f"Skolen for adressen din er {address['school_name']}: {address['school_url']}"
+            f"- Skolen for adressen er {address['school_name']}: {address['school_url']}"
         )
+        for service in school_services:
+            lines.append(f"- {service['title']}: {service['description']} {service['url']}")
         lines.append("")
 
-    lines.append("Her er noen nyttige steg de første ukene:")
-    for service in services:
+    lines.append("Praktisk informasjon:")
+    for service in practical_services:
         lines.append(f"- {service['title']}: {service['description']} {service['url']}")
 
     lines.extend(["", "Vi er glade for å ha deg her!"])

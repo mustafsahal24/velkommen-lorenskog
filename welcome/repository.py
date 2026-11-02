@@ -47,7 +47,7 @@ def list_services(conn, has_children: bool) -> list[dict]:
     return _fetch_all(
         conn,
         """
-        SELECT category, title, description, url
+        SELECT category, title, description, url, audience
         FROM services
         WHERE audience = 'all'
            OR (audience = 'families' AND ? = 1)

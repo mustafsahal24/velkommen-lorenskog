@@ -52,8 +52,11 @@ X-Webhook-Secret: {{secret}}
   "has_children": true
 }
 
-### 5. Hent velkomsten. Forventet: 200 med meldingen
+### 5a. Hent velkomsten. Forventet: 200 med meldingen
 GET {{baseUrl}}/welcome/{{moveIn.response.body.$.id}}
+
+### 5b. Vis velkomsten slik innbyggeren ser den
+GET {{baseUrl}}/welcome/{{moveIn.response.body.$.id}}?format=text
 
 ### 6. Ugyldig data (mangler e-post). Forventet: 400
 POST {{baseUrl}}/events/move-in

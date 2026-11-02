@@ -17,8 +17,8 @@ INSERT INTO addresses (id, street, postal_code, school_district_id) VALUES
 
 -- Tjenester i velkomsten (lenker hentet fra kommunens side "Ny i Lørenskog")
 INSERT INTO services (category, title, description, url, audience, sort_order) VALUES
-    (N'school',       N'Skole',
-     N'Se hvilken skole adressen din hører til, og hvordan du bytter skole.',
+    (N'school',       N'Skoletilhørighet',
+     N'Kart over inntaksområder, skolestart og bytte av skole.',
      N'https://www.lorenskog.kommune.no/tjenester/barnehage-og-skole/skole/skoletilhorighet-bytte-skole/',
      N'families', 10),
     (N'kindergarten', N'Barnehage',
