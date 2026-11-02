@@ -1,0 +1,68 @@
+# Demo: Velkommen til Lørenskog
+# Klikk "Send Request" over hvert kall, ovenfra og ned.
+
+@baseUrl = https://func-velkommen-lorenskog-ms.azurewebsites.net/api
+@secret = {{$dotenv WEBHOOK_SECRET}}
+
+### 0. Vekk databasen (kjør 5 min før demoen). Forventet: 404. Får du 500, vent 30 sek og prøv igjen.
+GET {{baseUrl}}/welcome/finnes-ikke
+
+### 1. Helsesjekk. Forventet: 200
+GET {{baseUrl}}/health
+
+### 2. Uten hemmelighet. Forventet: 401
+POST {{baseUrl}}/events/move-in
+Content-Type: application/json
+
+{
+  "event_id": "demo-uten-hemmelighet",
+  "full_name": "Kari Nordmann",
+  "email": "kari@example.no",
+  "street": "Testgata 10",
+  "postal_code": "1472",
+  "has_children": true
+}
+
+### 3. Ny flyttehendelse. Forventet: 201 Created
+# @name moveIn
+POST {{baseUrl}}/events/move-in
+Content-Type: application/json
+X-Webhook-Secret: {{secret}}
+
+{
+  "event_id": "demo-{{$timestamp}}",
+  "full_name": "Kari Nordmann",
+  "email": "kari@example.no",
+  "street": "Testgata 10",
+  "postal_code": "1472",
+  "has_children": true
+}
+
+### 4. Samme hendelse igjen. Forventet: 200 OK, samme id (idempotens)
+POST {{baseUrl}}/events/move-in
+Content-Type: application/json
+X-Webhook-Secret: {{secret}}
+
+{
+  "event_id": "{{moveIn.request.body.$.event_id}}",
+  "full_name": "Kari Nordmann",
+  "email": "kari@example.no",
+  "street": "Testgata 10",
+  "postal_code": "1472",
+  "has_children": true
+}
+
+### 5. Hent velkomsten. Forventet: 200 med meldingen
+GET {{baseUrl}}/welcome/{{moveIn.response.body.$.id}}
+
+### 6. Ugyldig data (mangler e-post). Forventet: 400
+POST {{baseUrl}}/events/move-in
+Content-Type: application/json
+X-Webhook-Secret: {{secret}}
+
+{
+  "event_id": "demo-ugyldig",
+  "full_name": "Kari Nordmann",
+  "street": "Testgata 10",
+  "postal_code": "1472"
+}
