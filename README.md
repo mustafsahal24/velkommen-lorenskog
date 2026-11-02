@@ -59,6 +59,7 @@ Koden er delt i lag, slik at hver fil har én jobb. Det gjør den lettere å tes
 | GET | `/api/health` | Viser at tjenesten kjører |
 | POST | `/api/events/move-in` | Tar imot en flyttehendelse og lager en velkomst |
 | GET | `/api/welcome/{id}` | Henter en velkomst |
+| GET | `/api/welcome/{id}?format=text` | Viser velkomsten som vanlig tekst,slik innbyggeren ser den |
 
 `POST /api/events/move-in` krever headeren `X-Webhook-Secret`.
 
