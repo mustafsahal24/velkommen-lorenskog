@@ -10,8 +10,8 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
 DB_PATH = ROOT_DIR / "data" / "welcome.db"
-SCHEMA_FILE = ROOT_DIR / "database" / "schema.sql"
-SEED_FILE = ROOT_DIR / "database" / "seed.sql"
+SCHEMA_FILE = ROOT_DIR / "database" / "sqlite" / "schema.sql"
+SEED_FILE = ROOT_DIR / "database" / "sqlite" / "seed.sql"
 
 def init_db(db_path: Path = DB_PATH) -> None:
     """Sletter og lager tabellene på nytt, og legger inn testdata."""
