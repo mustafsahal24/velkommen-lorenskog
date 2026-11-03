@@ -62,9 +62,12 @@ Vi er glade for å ha deg her!
 
 ## Avgrensninger
 
-Dette er en første versjon som virker fra start til slutt. Bevisst utenfor:
+Dette er en første versjon som viser idéen og virker fra start til slutt. Før den kan brukes med ekte data, gjenstår blant annet:
 
 - Velkomsten lages og lagres, men **sendes ikke** ennå (neste steg er en Logic App som sender e-post)
+- Henting av en velkomst krever i dag bare id-en. Før bruk med ekte data må endepunktet få tilgangskontroll, for eksempel med Microsoft Entra ID
+- Data slettes ikke automatisk
+- Testene kjøres manuelt, og utrulling til Azure gjøres manuelt
 - Flyttehendelsen er simulert. Hvilken kilde som kan brukes i virkeligheten, må avklares med kommunen
 - Adresser og skolekretser er eksempeldata, ikke kommunens inntaksområder
 - Databasen er på gratisnivå og pauses etter 15 minutter uten bruk. Første kall etterpå kan feile med 500 mens den våkner
@@ -151,10 +154,13 @@ docs/               Arkitekturdiagram
 
 ## Neste steg
 
-1. Logic App som sender velkomsten på e-post, og en påminnelse etter 14 dager
-2. Automatisk retry når databasen våkner fra pause
-3. API Management foran API-et, og hemmeligheten i Azure Key Vault
-4. Strammere nettverkstilgang til databasen (private endpoint)
-5. Slette gamle data automatisk
-6. Flere språk i meldingen
-7. Bruke kommunens data om inntaksområder i stedet for eksempeldata
+1. Tilgangskontroll på henting av velkomster
+2. CI/CD med GitHub Actions: kjøre testene automatisk ved hver endring, og rulle ut til Azure når de er grønne
+3. Logic App som sender velkomsten på e-post, og en påminnelse etter 14 dager
+4. Slette gamle data automatisk, og la innbyggere få innsyn og be om sletting
+5. Automatisk retry når databasen våkner fra pause
+6. API Management foran API-et, og hemmeligheten i Azure Key Vault
+7. Overvåking med Application Insights
+8. Strammere nettverkstilgang til databasen (private endpoint)
+9. Flere språk i meldingen
+10. Bruke kommunens data om inntaksområder i stedet for eksempeldata
